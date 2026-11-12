@@ -1,8 +1,14 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from app import db
+from app import db, fetcher
 from app.main import create_app
+
+
+@pytest.fixture(autouse=True)
+def no_retry_sleep(monkeypatch):
+    """Повторы скачивания в тестах не должны ждать по-настоящему."""
+    monkeypatch.setattr(fetcher, "_sleep", lambda seconds: None)
 
 
 @pytest.fixture

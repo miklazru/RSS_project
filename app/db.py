@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator, Optional
 
-from sqlalchemy import Engine, create_engine, event
+from sqlalchemy import Engine, create_engine, event, inspect
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app import config
@@ -68,6 +68,30 @@ def init_db() -> None:
     if _engine is None:
         configure()
     Base.metadata.create_all(_engine)
+    _add_missing_columns(_engine)
+
+
+# Столбцы, добавленные после первого релиза: create_all их в старой базе не создаст.
+_LATER_COLUMNS = {
+    "channels": [("etag", "VARCHAR(500)"), ("last_modified", "VARCHAR(100)")],
+}
+
+
+def _add_missing_columns(engine: Engine) -> None:
+    """Мини-миграция: дописывает в уже существующие таблицы новые столбцы, чтобы старая база не ломалась."""
+    # Сначала только читаем структуру и закрываем соединение: инспектор тоже открывает транзакцию
+    # на запись (BEGIN IMMEDIATE), и внутри нашей он бы ждал сам себя до таймаута.
+    missing = []
+    with engine.connect() as connection:
+        inspector = inspect(connection)
+        for table, columns in _LATER_COLUMNS.items():
+            existing = {column["name"] for column in inspector.get_columns(table)}
+            missing += [(table, name, sql_type) for name, sql_type in columns if name not in existing]
+    if not missing:
+        return
+    with engine.begin() as connection:
+        for table, name, sql_type in missing:
+            connection.exec_driver_sql(f"ALTER TABLE {table} ADD COLUMN {name} {sql_type}")
 
 
 @contextmanager

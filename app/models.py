@@ -57,6 +57,9 @@ class Channel(Base):
     )
     # текст последней ошибки скачивания — показываем в UI, чтобы было видно, что канал «сломан»
     last_error: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    # заголовки последнего успешного ответа: по ним просим сервер не слать ленту, если она не менялась
+    etag: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    last_modified: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     articles: Mapped[List["Article"]] = relationship(
