@@ -3,3 +3,4 @@ uvicorn==0.37.0
 sqlalchemy==2.0.36
 feedparser==6.0.11
 httpx==0.28.1
+pymorphy3==2.0.6

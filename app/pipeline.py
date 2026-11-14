@@ -57,7 +57,9 @@ def to_filter_data(flt: Filter) -> FilterData:
 # ---------- Сопоставление ----------
 
 
-def _match_pair(session: Session, article: Article, flt: Filter) -> bool:
+def _match_pair(
+    session: Session, article: Article, flt: Filter, *, raise_on_match_error: bool = False
+) -> bool:
     """Проверяет одну статью одним фильтром и сохраняет совпадение. Возвращает True, если совпало."""
     already_matched = session.scalar(
         select(Match.id).where(Match.article_id == article.id, Match.filter_id == flt.id)
@@ -69,6 +71,8 @@ def _match_pair(session: Session, article: Article, flt: Filter) -> bool:
     try:
         result = matcher.match(to_article_data(article), to_filter_data(flt))
     except Exception:
+        if raise_on_match_error:
+            raise
         # ошибка в одном движке не должна ронять обработку всей ленты
         log.exception("движок %s упал на статье %s, фильтр %s", flt.kind, article.id, flt.id)
         return False
@@ -111,14 +115,18 @@ def match_new_articles(session: Session, articles: List[Article]) -> int:
     return matches_count
 
 
-def match_filter(session: Session, flt: Filter) -> int:
+def match_filter(session: Session, flt: Filter, *, raise_on_match_error: bool = False) -> int:
     """Событие 2: новый фильтр -> статьи всех каналов его владельца."""
     articles = session.scalars(
         select(Article)
         .join(Subscription, Subscription.channel_id == Article.channel_id)
         .where(Subscription.user_id == flt.user_id)
     )
-    matches_count = sum(1 for article in articles if _match_pair(session, article, flt))
+    matches_count = sum(
+        1
+        for article in articles
+        if _match_pair(session, article, flt, raise_on_match_error=raise_on_match_error)
+    )
     session.flush()
     return matches_count
 
