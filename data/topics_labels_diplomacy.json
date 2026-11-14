@@ -1,0 +1,285 @@
+{
+  "topic": "Международные переговоры и дипломатические усилия по урегулированию конфликта в Украине",
+  "examples": [
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xue580/trump_says_we_dont_need_a_deal_with_iran/",
+      "title": "Trump says ‘we don’t need a deal with Iran’",
+      "summary": "submitted by /u/Motor-Juggernaut9776 [link] [comments]",
+      "relevant": false,
+      "comment": "Переговоры с Ираном, а не урегулирование конфликта в Украине."
+    },
+    {
+      "link": "https://www.bbc.co.uk/news/articles/crgj3v3z10dno?at_medium=RSS&at_campaign=rss",
+      "title": "Eight killed in Colombian air strike targeting Gulf Clan gang",
+      "summary": "A suspected gang leader considered a \"priority target\" was among those killed, the Colombian president says.",
+      "relevant": false,
+      "comment": "Военная операция против группировки в Колумбии, не дипломатия по Украине."
+    },
+    {
+      "link": "https://www.bbc.com/russian/articles/c6pw48zzg19ro?at_medium=RSS&at_campaign=rss",
+      "title": "Переговоры в Абу-Даби завершились. Главный итог — будет новый обмен пленными",
+      "summary": "Пока известно только об одной договоренности — очередном обмене военнопленными, параметры которого пока не объявлены. Делегация США планирует обсудить обмен с президентами России и Украины лично. Был поднят и территориальный вопрос, но подвижек не случилось, следует из заявлений всех участников переговоров.",
+      "relevant": true,
+      "comment": "Итоги переговоров по Украине: обмен пленными и обсуждение территориального вопроса."
+    },
+    {
+      "link": "https://tass.ru/politika/28312889",
+      "title": "Ушаков: идет активное обсуждение содержания трехсторонней встречи лидеров РФ, КНР и США",
+      "summary": "",
+      "relevant": null,
+      "comment": "Указана встреча РФ, КНР и США, но её связь с урегулированием в Украине из заголовка не установлена."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xufymw/shouting_match_from_hell_trump_netanyahu_clash/",
+      "title": "‘Shouting match from hell’: Trump, Netanyahu clash over Iran war",
+      "summary": "submitted by /u/GuestFromBudushchego [link] [comments]",
+      "relevant": false,
+      "comment": "Разногласия США и Израиля по Ирану, другой конфликт."
+    },
+    {
+      "link": "https://www.interfax.ru/world/1128669",
+      "title": "Уиткофф после переговоров в Москве заявил о прогрессе по Украине",
+      "summary": "Спецпосланник президента США Стив Уиткофф по завершении переговоров в Москве в четверг заявил, что удалось добиться прогресса по украинскому урегулированию.\"Я думаю, что прогресс достигнут\", - сказал Уиткофф телеканалу CNN.",
+      "relevant": true,
+      "comment": "Прямое сообщение о прогрессе в переговорах по украинскому урегулированию."
+    },
+    {
+      "link": "https://habr.com/ru/companies/runity/articles/1107170/?utm_source=habrahabr&utm_medium=rss&utm_campaign=1107170",
+      "title": "Руцентр разрабатывает DNS Guard для раннего обнаружения киберугроз",
+      "summary": "Руцентр готовит к запуску DNS Guard — систему раннего обнаружения киберугроз на уровне DNS. Она будет отслеживать подозрительную активность в инфраструктуре и выявлять признаки атак до возникновения сбоев в работе сайтов и корпоративных сервисов. По данным исследования Руцентра за 2026 год, 53,4% компаний сталкивались с доменными инцидентами, однако формализованные правила управления доменами есть только у 31,5% организаций. DNS Guard объединит анализ DNS-трафика, контроль изменений доменных записей и проверку конфигураций DNS-зон. Читать далее",
+      "relevant": false,
+      "comment": "Система обнаружения киберугроз, не дипломатия."
+    },
+    {
+      "link": "https://www.vedomosti.ru/politics/news/2026/11/12/1244942-putin-otkril-zasedanie",
+      "title": "Путин открыл заседание совета по развитию физической культуры и спорта",
+      "summary": "",
+      "relevant": false,
+      "comment": "Заседание по физкультуре и спорту, не урегулирование конфликта."
+    },
+    {
+      "link": "https://www.bbc.co.uk/news/articles/ck9q8g8209l2o?at_medium=RSS&at_campaign=rss",
+      "title": "Two men found guilty of spying for Iran over plan to target UK-based journalists",
+      "summary": "The men were convicted of engaging in conduct likely to assist an Iranian intelligence service.",
+      "relevant": false,
+      "comment": "Судебное дело о шпионаже в пользу Ирана, не переговоры по Украине."
+    },
+    {
+      "link": "https://www.theguardian.com/world/live/2026/nov/12/us-envoys-in-moscow-meeting-putin-abu-dhabi-trilateral-ukraine-ceasefire-talks-latest-news-updates",
+      "title": "New talks with Russia, Ukraine and European countries agreed, US says - Europe live",
+      "summary": "US envoy Steve Witkoff’s announcement come after his talks with Putin in Moscow Luxembourg’s PM Luc Frieden looks to be absolutely chuffed to be representing all three Benelux countries at today’s summit, as his Belgian and Dutch colleagues are too busy to attend as they face domestic crises. “I have the privilege of representing 30 millions citizens today,” he said on arrival to Dublin, with a massive smile on his face. Continue reading...",
+      "relevant": true,
+      "comment": "Английский заголовок прямо сообщает о согласовании переговоров России, Украины и европейских стран. Описание также упоминает встречу Уиткоффа с Путиным."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xucr8i/starshield_speed_restrictions_return_hampering/",
+      "title": "Starshield speed restrictions return, hampering efforts to intercept Russian drones, Zelensky says",
+      "summary": "submitted by /u/Not_Tom_Jones [link] [comments]",
+      "relevant": false,
+      "comment": "Технические ограничения перехвата дронов. Дипломатические переговоры не описаны."
+    },
+    {
+      "link": "https://www.vedomosti.ru/politics/news/2026/11/12/1244920-ogranicheniya-na-vezd",
+      "title": "Финляндия ввела ограничения на въезд спортсменов из России",
+      "summary": "",
+      "relevant": false,
+      "comment": "Визовые ограничения для спортсменов, не переговоры об урегулировании."
+    },
+    {
+      "link": "https://meduza.io/feature/2026/11/12/voyna",
+      "title": "Война. 1723-й день. Кушнер и Уиткофф встречаются с Путиным — а затем с Зеленским. Европа решает, кто будет представлять ее на переговорах",
+      "summary": "«Медуза» с 24 февраля 2022 года в прямом эфире рассказывает о российско-украинской войне. Мы ежедневно публикуем ваши письма, потому что уверены: о войне нужно продолжать говорить. Поделитесь с нами мыслями о войне. Какие чувства вы испытываете? Как война влияет на вашу жизнь и ваше отношение к миру? Если у вас есть история, связанная с войной, — расскажите ее. Форма для обратной связи — в конце этой статьи. О том, что происходило в предыдущий день, можно прочитать тут.",
+      "relevant": true,
+      "comment": "В заголовке существенное место занимают встречи посредников с Путиным и Зеленским и представительство Европы на переговорах."
+    },
+    {
+      "link": "https://www.bbc.com/russian/podcasts/p076qqzl/p0pmltjm?at_medium=RSS&at_campaign=rss",
+      "title": "Мирное соглашение по Украине близко?",
+      "summary": "Каковы итоги переговоров США, России и Украины в Абу-Даби?",
+      "relevant": true,
+      "comment": "Мирное соглашение и итоги переговоров США, России и Украины — основная тема."
+    },
+    {
+      "link": "https://www.bbc.co.uk/news/articles/ckzd9p7e4eqeo?at_medium=RSS&at_campaign=rss",
+      "title": "Israeli strike on Gaza hospital kills six Palestinians, health ministry says",
+      "summary": "Witnesses say a missile hit a building containing the surgical wards and intensive care units at Nasser hospital, the largest in southern Gaza.",
+      "relevant": false,
+      "comment": "Удар по больнице в Газе; другой конфликт и не переговоры."
+    },
+    {
+      "link": "https://meduza.io/news/2026/11/12/finlyandiya-ogranichit-vydachu-viz-rossiyskim-sportsmenam-v-tom-chisle-tem-kto-vystupaet-v-neytralnom-statuse",
+      "title": "Финляндия ограничит въезд российским спортсменам — в том числе тем, кто выступает в нейтральном статусе",
+      "summary": "Власти Финляндии ужесточили правила выдачи виз россиянам, в том числе профессиональным спортсменам. Соответствующие поправки в принципиальное решение о въезде граждан РФ правительство страны приняло 12 ноября.",
+      "relevant": false,
+      "comment": "Визовая политика в отношении спортсменов, не мирные переговоры."
+    },
+    {
+      "link": "https://ria.ru/20261112/putin-2131198664.html",
+      "title": "Путин предложил обсудить возвращение России на международные соревнования",
+      "summary": "",
+      "relevant": false,
+      "comment": "Участие России в спортивных соревнованиях, не урегулирование конфликта."
+    },
+    {
+      "link": "https://meduza.io/news/2026/11/12/v-nyu-yorke-obrushilsya-mnogokvartirnyy-dom-pogibli-vosem-chelovek",
+      "title": "В Нью-Йорке обрушился многоквартирный дом. Погибли восемь человек",
+      "summary": "В Нью-Йорке обрушился трехэтажный жилой дом в районе Флэтбуш в Бруклине. Восемь человек погибли, еще 17 пострадали — из них четверо находятся в критическом состоянии. Об этом сообщил мэр города Зохран Мамдани.",
+      "relevant": false,
+      "comment": "Обрушение дома в Нью-Йорке, не дипломатия."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xucv9c/us_envoys_meet_with_putin_to_brief_him_on_ukraine/",
+      "title": "US envoys meet with Putin to brief him on Ukraine talks",
+      "summary": "submitted by /u/realthingwinner [link] [comments]",
+      "relevant": true,
+      "comment": "Английский заголовок: представители США встречаются с Путиным для обсуждения переговоров по Украине."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xu91vs/zelenskyy_starlink_again_facing_restrictions_in/",
+      "title": "Zelenskyy: Starlink again facing restrictions in Ukraine, hampering Russian drone interceptions",
+      "summary": "submitted by /u/Miserable_Phase_2519 [link] [comments]",
+      "relevant": false,
+      "comment": "Ограничения Starlink и перехват дронов; переговорная составляющая в тексте отсутствует."
+    },
+    {
+      "link": "https://www.theguardian.com/australia-news/2026/nov/13/icac-chris-minns-nsw-undeclared-lobbying-bill-ntwnfb",
+      "title": "Icac’s drama and dirt files show NSW’s ‘guns for hire’ problem. But neither major party is serious about reform",
+      "summary": "Chris Minns is trying to address the threat of undeclared lobbying but falls well short of what the commission recommended five years ago Get our daily political email , free app or daily news podcast A dirt file on a state minister peddled to journalists. A subterranean campaign to discredit the building commissioner. Convincing the Liberal party to unseat councillors in the Hills district who were blocking a developer. The New South Wales corruption watchdog’s recent inquiry, Rosny, revealed the ease with which the key protagonists – a group of rightwing Liberal operatives known as the Reformers, all of whom were former staffers – could move along the corridors of NSW parliament. Continue reading...",
+      "relevant": false,
+      "comment": "Коррупция и лоббизм в Австралии, не дипломатия по Украине."
+    },
+    {
+      "link": "https://www.vedomosti.ru/politics/news/2026/11/12/1244940-novii-raund-peregovorov",
+      "title": "Уиткофф утверждает, что новый раунд переговоров по Украине согласован",
+      "summary": "",
+      "relevant": true,
+      "comment": "Согласование нового раунда переговоров по Украине прямо указано в заголовке."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xufd86/hungary_eases_abortion_rules_as_peter_magyar/",
+      "title": "Hungary eases abortion rules as Peter Magyar announces wave of women’s rights reforms",
+      "summary": "submitted by /u/theindependentonline [link] [comments]",
+      "relevant": false,
+      "comment": "Внутренние реформы в Венгрии, не урегулирование конфликта."
+    },
+    {
+      "link": "https://ria.ru/20261112/degtyarev-2131199922.html",
+      "title": "Дегтярев сказал, на какие международные соревнования претендует Россия",
+      "summary": "",
+      "relevant": false,
+      "comment": "Проведение международных спортивных соревнований, не дипломатическое урегулирование."
+    },
+    {
+      "link": "https://www.bbc.co.uk/sport/football/articles/cqdr1jlr1707o?at_medium=RSS&at_campaign=rss",
+      "title": "How Pochettino came on Man Utd's radar - and what Carrick was told when",
+      "summary": "How Man Utd identified Mauricio Pochettino as their new head coach - and what happened in the week Michael Carrick was left waiting.",
+      "relevant": false,
+      "comment": "Назначение футбольного тренера, не дипломатия."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xucqrf/ireland_faces_pressure_to_stop_sending_russia_an/",
+      "title": "Ireland faces pressure to stop sending Russia an ingredient vital to its war on Ukraine",
+      "summary": "submitted by /u/IKeepItLayingAround [link] [comments]",
+      "relevant": false,
+      "comment": "Давление из-за поставок вещества России. Связь с войной есть, но переговоры или мирное урегулирование не представлены."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xuewed/european_parliament_calls_for_russias_actions/",
+      "title": "European Parliament calls for Russia's actions against Ukrainian children to be recognised as genocide",
+      "summary": "submitted by /u/EnoughPrimary6700 [link] [comments]",
+      "relevant": false,
+      "comment": "Политико-правовая оценка действий против детей; мирные переговоры или дипломатическая договорённость не описаны."
+    },
+    {
+      "link": "https://tass.ru/proisshestviya/28312801",
+      "title": "В Калининграде адвоката осудили за госизмену",
+      "summary": "Женщину приговорили к 12 годам колонии общего режима",
+      "relevant": false,
+      "comment": "Судебный приговор по делу о госизмене, не переговоры."
+    },
+    {
+      "link": "https://ria.ru/20261112/peregovory-2131199238.html",
+      "title": "Россия и США условились о продолжении трехсторонних переговоров",
+      "summary": "",
+      "relevant": null,
+      "comment": "Продолжение трёхсторонних переговоров, но третий участник и предмет переговоров не названы. Без описания не приписываем им тему Украины."
+    },
+    {
+      "link": "https://www.bbc.co.uk/news/articles/cwrkgmymk55zo?at_medium=RSS&at_campaign=rss",
+      "title": "Ukraine says military Starlink disrupted again as US envoys meet Putin in Moscow",
+      "summary": "Later on Thursday, Jared Kushner and Steve Witkoff will travel to Dublin to meet Ukraine's Volodymyr Zelensky.",
+      "relevant": true,
+      "comment": "Смешанный материал: кроме Starlink, заголовок и описание сообщают о встречах американских представителей с Путиным и Зеленским. Дипломатическая составляющая существенна."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xu8x4n/starshield_slows_ukrainian_interceptors_to_100/",
+      "title": "Starshield Slows Ukrainian Interceptors to 100 MPH Again, Zelenskyy Says",
+      "summary": "submitted by /u/thhvancouver [link] [comments]",
+      "relevant": false,
+      "comment": "Ограничение скорости перехватчиков, не дипломатическое урегулирование."
+    },
+    {
+      "link": "https://tass.ru/politika/28312891",
+      "title": "Ушаков: параметры самого масштабного обмена пленных согласовываются",
+      "summary": "",
+      "relevant": true,
+      "comment": "Согласование обмена пленными — гуманитарная договорённость переговорного процесса; отнесено к теме по контексту заявления Ушакова. Желательна проверка этой контекстной метки человеком."
+    },
+    {
+      "link": "https://tass.ru/politika/28312887",
+      "title": "Ушаков: Путин и Трамп продолжат обсуждение украинского урегулирования",
+      "summary": "",
+      "relevant": true,
+      "comment": "Прямое обсуждение украинского урегулирования Путиным и Трампом."
+    },
+    {
+      "link": "https://tass.ru/politika/28312885",
+      "title": "Ушаков: на встрече с Уиткоффом и Кушнером обсуждалось поведение Зеленского",
+      "summary": "",
+      "relevant": true,
+      "comment": "Содержание встречи с американскими посредниками касается Зеленского; дипломатическая составляющая по Украине выражена в заголовке."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xu8ki4/russian_officer_killed_in_st_petersburg_car_blast/",
+      "title": "Russian officer killed in St. Petersburg car blast",
+      "summary": "submitted by /u/cacasangue [link] [comments]",
+      "relevant": false,
+      "comment": "Взрыв автомобиля и гибель офицера, не переговоры."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xuelgz/macron_speaks_candidly_on_state_of_usukraine/",
+      "title": "Macron Speaks Candidly On State Of US-Ukraine Relationship",
+      "summary": "submitted by /u/huffpostuk [link] [comments]",
+      "relevant": null,
+      "comment": "Заголовок об отношениях США и Украины, но неясно, говорится ли о мирных переговорах, помощи или иной теме."
+    },
+    {
+      "link": "https://www.reddit.com/r/worldnews/comments/1xu9gtz/bedouin_hero_who_rescued_israelis_on_oct_7_sees/",
+      "title": "Bedouin hero who rescued Israelis on Oct. 7 sees Israel demolish family's homes | The Jerusalem Post",
+      "summary": "submitted by /u/stammerton [link] [comments]",
+      "relevant": false,
+      "comment": "Снос домов в Израиле, не дипломатия по Украине."
+    },
+    {
+      "link": "https://www.kommersant.ru/doc/9095797",
+      "title": "Уиткофф и Кушнер улетели из Москвы",
+      "summary": "Встреча президента России Владимира Путина со спецпосланниками президента США Стивом Уиткоффом и Джаредом Кушнером завершилась. Переговоры прошли в Кремле и длились около 2,5 часа, передает корреспондент «Интерфакс».",
+      "relevant": null,
+      "comment": "Описано завершение встречи Путина с представителями США, но предмет переговоров в доступном тексте не назван. Не дополняем текст внешними сведениями."
+    },
+    {
+      "link": "https://www.interfax.ru/world/1128675",
+      "title": "Кушнер отметил, что Москва и Киев уделяют большое внимание прекращению конфликта",
+      "summary": "Конфликт на Украине необходимо прекратить, Москва и Киев уделяют этому большое внимание, заявил американский переговорщик Джаред Кушнер после переговоров с президентом РФ Владимиром Путиным.\"Этот конфликт необходимо прекратить.",
+      "relevant": true,
+      "comment": "Американский переговорщик после встречи с Путиным говорит о прекращении конфликта и позиции Москвы и Киева."
+    },
+    {
+      "link": "https://www.theguardian.com/politics/live/2026/nov/12/milburn-review-neets-young-people-welfare-work-latest-news-updates",
+      "title": "Sadiq Khan joins Labour figures urging PM not to water down electric vehicle targets – UK politics live",
+      "summary": "The mayor of London is the most high-profile figure to weigh into the debate over electric vehicle targets On the Today programme this morning, the Labour MP Bell Ribeiro-Addy , a prominent leftwinger, indicated she might vote against legislation to implement the Alan Milburn proposals. She said she was concerned by the idea that the cuts would apply to people already getting sickness and disability benefits, and she said it appeared to be a breach of a promise given last year that people already getting Pip (the personal independence payment) would not lose it. She said: I just don’t think that you get a disabled young person into work by taking away the money that helps them to get into work. The cuts seem to land on young disabled people, and many of them are in college already or already in work. So I don’t see how you fix the first by punishing the second. Milburn said he concluded fundamental change was needed. He said: The whole system needs to be changed, because the system is geared to keeping people inactive when, for young people in particular, it’s all about how can you make them active, get them earning, learning, so that they can rely on a wage rather than on a benefit. So, this is not about cutting one benefit, it’s about rebuilding the system from scratch. He said that he decided existing claimants should be covered by the changes, not just new changes. It’s a big rewriting of the welfare system. And obviously one of the conundrums was, ‘Should this apply to only new claimants?’ I came to the conclusion that wouldn’t be right, not least because you’ve got hundreds of thousands of young people stuck in a benefit system that is trapping them in poverty, giving them no prospect of prosperity or a job. Milburn admitted this meant the plans would not be “pain-free”. I’m not saying that any of this will be easy or that it will be pain-free because it won’t. You know, candidly, it could mean that some people will get less financial support at the beginning of their benefit claim than under the current system. He said he wanted the system to prioritise improving people’s life chances in the long term over easing their financial hardship in the short term. Actually for young people there’s a different debate that we’ve got to resolve, which is whether the priority is their longer-term life chances or just their immediate shorter-term finances. I think what the current system does, it prioritises the latter over the former. I believe that’s the wrong choice and it needs to be the other way around. He said, alongside the cuts to benefits he is proposing (see 11.56am ), he wanted to improve employment support for young people. We need to make sure people have the opportunities to get an apprenticeship, a job, a work placement, a pre-apprenticeship, a college place. The menu of opportunities has got to increase. They’ll have a personal adviser, they’ll be coached all the way through. The adviser will stick with them until they have found a job or an apprenticeship or college place. He also confirmed he wants to let young people do some work before they start losing benefits. They will get immediate access to support if that’s what they need, if that’s the thing that is holding them back from being in education or training. He admitted that offering better employment support and mental health support would mean his plans would initially cost money. According to the Times, he did not did not deny claims the whole package could cost £6bn. But, in the long run, there would be savings, he said. Obviously this costs money. And frankly it’s a better use of money, both from the point of view of the young person and the taxpayer, to spend that money getting them into work rather than spending that money keeping them on benefits. This is the sort of fatuous thing about this debate. You’ve got to invest upfront in order to get savings out of the back end. Cost-free is fatuous. So we’ve got to be candid about that. It will need significant investment. To get a return on investment will take time … the only way of cutting the benefits bill sustainably is by getting young people into work, paying their taxes and being less reliant on benefits. Unless you are prepared to put the investment upfront it will never be possible. He said he was “confident” that Andy Burnham was full-square behind the changes that are needed.” Continue reading...",
+      "relevant": false,
+      "comment": "Внутренняя политика Великобритании: электромобили, пособия и занятость. Переговоры по Украине не представлены."
+    }
+  ]
+}
