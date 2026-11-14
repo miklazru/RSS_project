@@ -35,9 +35,10 @@ def test_unknown_kind_raises():
         get_matcher("regex")
 
 
-def test_keyword_stub_matches_whole_words_only():
+def test_keyword_matches_inflections_and_keeps_word_boundaries():
     matcher = get_matcher("keyword")
     flt = FilterData(id=1, kind="keyword", query="банк")
-    # «банков» — другая словоформа; заглушка её не находит, настоящий движок (роль 3) должен
-    assert not matcher.match(ARTICLE, flt).matched
+    result = matcher.match(ARTICLE, flt)
+    assert result == MatchResult(True, 1.0, ["слово «банк» в заголовке: «банков»"])
     assert matcher.match(ArticleData(id=2, title="Банк закрылся", summary=""), flt).matched
+    assert not matcher.match(ArticleData(id=3, title="Банковский сектор", summary=""), flt).matched
