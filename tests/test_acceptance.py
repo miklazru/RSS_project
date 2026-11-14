@@ -34,6 +34,23 @@ def test_post_not_matching_filter_is_absent(make_user, add_filter, post, feed):
     assert feed(user["id"]) == []
 
 
+def test_keyword_phrase_reason_reaches_feed(make_user, add_filter, post, feed):
+    user = make_user()
+    add_filter(user["id"], "keyword", "искусственый интеллект")
+
+    post("Об искусственном интеллекте")
+    post("Искусственный материал", "Интеллект")
+
+    items = feed(user["id"])
+    assert titles(items) == ["Об искусственном интеллекте"]
+    match = items[0]["matches"][0]
+    assert match["score"] == 1.0
+    assert match["reasons"] == [
+        "фраза «искусственый интеллект» в заголовке: «искусственном интеллекте» "
+        "(совпадение с опечаткой)"
+    ]
+
+
 def test_new_filter_applies_to_existing_articles(make_user, add_filter, post, feed):
     user = make_user("Аня")
     post("Курс рубль укрепился")
