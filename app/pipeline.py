@@ -12,7 +12,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Set
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -142,6 +142,52 @@ def match_subscription(session: Session, user_id: int, channel_id: int) -> int:
                 matches_count += 1
     session.flush()
     return matches_count
+
+
+# ---------- Данные для прогрева движков (читаются до тяжёлых вычислений) ----------
+
+
+def user_filter_kinds(session: Session, user_id: int) -> Set[str]:
+    """Какие виды фильтров есть у пользователя."""
+    return set(session.scalars(select(Filter.kind).where(Filter.user_id == user_id).distinct()))
+
+
+def subscriber_filter_kinds(session: Session, channel_id: int) -> Set[str]:
+    """Какие виды фильтров есть у подписчиков канала."""
+    return set(
+        session.scalars(
+            select(Filter.kind)
+            .join(Subscription, Subscription.user_id == Filter.user_id)
+            .where(Subscription.channel_id == channel_id)
+            .distinct()
+        )
+    )
+
+
+def articles_of_user(session: Session, user_id: int) -> List[ArticleData]:
+    """Статьи всех каналов пользователя."""
+    articles = session.scalars(
+        select(Article)
+        .join(Subscription, Subscription.channel_id == Article.channel_id)
+        .where(Subscription.user_id == user_id)
+    )
+    return [to_article_data(article) for article in articles]
+
+
+def articles_of_channel(session: Session, channel_id: int) -> List[ArticleData]:
+    articles = session.scalars(select(Article).where(Article.channel_id == channel_id))
+    return [to_article_data(article) for article in articles]
+
+
+def item_to_article_data(item: FeedItem) -> ArticleData:
+    """Запись ленты, которой ещё нет в базе (id = 0), — в том же виде, что и to_article_data."""
+    return ArticleData(
+        id=0,
+        title=item.title or "",
+        summary=item.summary or "",
+        link=item.link,
+        published_at=item.published_at,
+    )
 
 
 # ---------- Приём статей от сборщика ----------
