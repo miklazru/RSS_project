@@ -6,20 +6,34 @@ from app.matching.semantic import TopicMatcher
 
 
 class FakeModel:
-    """Известные нормализованные векторы для проверки логики."""
+    """Поддерживает пакетное кодирование и записывает вызовы."""
 
     def __init__(self):
         self.calls = []
+        self.batches = []
 
-    def encode(self, text, **kwargs):
-        self.calls.append(text)
+    def encode(self, texts, **kwargs):
+        if isinstance(texts, str):
+            raise AssertionError("Ожидался список текстов")
 
-        if text in {"Технологии", "Экономика"}:
-            return np.array([1.0, 0.0])
+        texts = list(texts)
+        self.calls.extend(texts)
+        self.batches.append(
+            {
+                "texts": texts,
+                "batch_size": kwargs.get("batch_size"),
+            }
+        )
 
-        # Сходство с вектором темы равно 0.8.
-        return np.array([0.8, 0.6])
+        vectors = []
 
+        for text in texts:
+            if text in {"Технологии", "Экономика"}:
+                vectors.append([1.0, 0.0])
+            else:
+                vectors.append([0.8, 0.6])
+
+        return np.array(vectors, dtype=np.float32)
 
 @pytest.fixture
 def engine():
@@ -213,3 +227,154 @@ def test_default_threshold(engine, monkeypatch):
 
     assert result.matched is False
     assert result.score == pytest.approx(0.8)
+
+def test_preload_loads_model_once(monkeypatch):
+    model = FakeModel()
+    loads = []
+
+    def load_model(self):
+        loads.append(True)
+        return model
+
+    monkeypatch.setattr(TopicMatcher, "_load_model", load_model)
+
+    matcher = TopicMatcher()
+
+    matcher.preload()
+    matcher.preload()
+
+    assert len(loads) == 1
+    assert model.calls == []
+
+
+def test_warm_up_batches_articles_with_zero_ids():
+    model = FakeModel()
+    matcher = TopicMatcher(model=model)
+
+    articles = [
+        make_article(article_id=0, title="Первая статья"),
+        make_article(article_id=0, title="Вторая статья"),
+    ]
+
+    matcher.warm_up(articles)
+
+    assert model.batches == [
+        {
+            "texts": [
+                "Первая статья\nОписание",
+                "Вторая статья\nОписание",
+            ],
+            "batch_size": 64,
+        }
+    ]
+
+    # После записи в БД ID изменились, тексты остались прежними.
+    for article_id, article in enumerate(articles, start=101):
+        matcher.match(
+            make_article(
+                article_id=article_id,
+                title=article.title,
+                summary=article.summary,
+            ),
+            make_filter(),
+        )
+
+    # После прогрева кодируется только тема.
+    assert model.calls == [
+        "Первая статья\nОписание",
+        "Вторая статья\nОписание",
+        "Технологии",
+    ]
+
+
+def test_warm_up_deduplicates_and_encodes_only_missing():
+    model = FakeModel()
+    matcher = TopicMatcher(model=model)
+
+    first = make_article(article_id=0, title="Первая")
+    second = make_article(article_id=0, title="Вторая")
+
+    matcher.warm_up([first, first, second])
+    matcher.warm_up([first, second])
+
+    assert len(model.batches) == 1
+    assert model.calls == [
+        "Первая\nОписание",
+        "Вторая\nОписание",
+    ]
+
+    matcher.warm_up(
+        [
+            first,
+            make_article(article_id=0, title="Третья"),
+        ]
+    )
+
+    assert len(model.batches) == 2
+    assert model.batches[-1]["texts"] == ["Третья\nОписание"]
+
+
+def test_warm_up_keeps_batch_larger_than_initial_cache():
+    model = FakeModel()
+    matcher = TopicMatcher(model=model, cache_size=2)
+
+    articles = [
+        make_article(article_id=0, title=f"Статья {number}")
+        for number in range(5)
+    ]
+
+    matcher.warm_up(articles)
+
+    for article in articles:
+        matcher.match(article, make_filter())
+
+    # Все пять статей посчитаны пачкой, тема — отдельно один раз.
+    assert len(model.batches) == 2
+    assert len(model.batches[0]["texts"]) == 5
+    assert model.batches[1]["texts"] == ["Технологии"]
+
+
+def test_warm_up_preserves_cached_members_of_batch():
+    model = FakeModel()
+    matcher = TopicMatcher(model=model, cache_size=2)
+
+    first = make_article(title="Первая")
+    unrelated = make_article(title="Посторонняя")
+    second = make_article(title="Вторая")
+
+    matcher.warm_up([first, unrelated])
+    matcher.warm_up([first, second])
+
+    calls_before = len(model.calls)
+
+    matcher.match(first, make_filter())
+    matcher.match(second, make_filter())
+
+    # Статьи не вытеснились при прогреве; вычисляется только тема.
+    assert model.calls[calls_before:] == ["Технологии"]
+
+
+def test_empty_warm_up_does_not_load_model(monkeypatch):
+    def unexpected_load(self):
+        raise AssertionError("Пустому прогреву модель не нужна")
+
+    monkeypatch.setattr(TopicMatcher, "_load_model", unexpected_load)
+
+    matcher = TopicMatcher()
+
+    matcher.warm_up([])
+    matcher.warm_up(
+        [make_article(title="  ", summary="")]
+    )
+
+
+def test_same_text_with_different_ids_uses_one_embedding(engine):
+    matcher, model = engine
+
+    matcher.match(make_article(article_id=1), make_filter())
+    matcher.match(make_article(article_id=999), make_filter())
+
+    assert model.calls == [
+        "Новость\nОписание",
+        "Технологии",
+    ]

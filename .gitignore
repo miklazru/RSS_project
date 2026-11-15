@@ -3,3 +3,4 @@ __pycache__/
 .pytest_cache/
 data/app.db*
 models/
+.venv-py39-backup/
