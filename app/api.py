@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app import pipeline
 from app.db import get_session
 from app.fetcher import fetch_channel, fetch_channel_by_id
+from app.matching import FILTER_KINDS, ArticleData, warm_up_matchers
 from app.models import Channel, Filter, Subscription, TestPost, User
 from app.own_channel import build_rss_xml, ensure_own_channel
 from app.schemas import (
@@ -54,6 +55,15 @@ def _find_or_create_channel(session: Session, url: str) -> tuple[Channel, bool]:
     session.add(channel)
     session.flush()
     return channel, True
+
+
+def _warm_up_before_subscribe(session: Session, user_id: int, channel_id: int) -> None:
+    """Перед подпиской: прогреть движки на статьях канала, отпустив базу на время вычислений."""
+    kinds = pipeline.user_filter_kinds(session, user_id)
+    articles = pipeline.articles_of_channel(session, channel_id) if kinds else []
+    # закрываем транзакцию запроса: пока модель считает, другие запросы могут писать в базу
+    session.commit()
+    warm_up_matchers(kinds, articles)
 
 
 def _subscribe(session: Session, user_id: int, channel_id: int) -> None:
@@ -178,7 +188,12 @@ def add_and_subscribe(
     """Добавить канал по ссылке и сразу подписать на него пользователя (одним действием)."""
     _get_user_or_404(session, user_id)
     channel, created = _find_or_create_channel(session, data.url)
-    _subscribe(session, user_id, channel.id)
+    session.commit()
+    channel_id = channel.id
+    if not created:
+        # у нового канала статей ещё нет — прогревать нечего
+        _warm_up_before_subscribe(session, user_id, channel_id)
+    _subscribe(session, user_id, channel_id)
     session.commit()
     if created:
         background.add_task(fetch_channel_by_id, channel.id)
@@ -189,6 +204,7 @@ def add_and_subscribe(
 def subscribe(user_id: int, channel_id: int, session: Session = Depends(get_session)):
     _get_user_or_404(session, user_id)
     _get_channel_or_404(session, channel_id)
+    _warm_up_before_subscribe(session, user_id, channel_id)
     _subscribe(session, user_id, channel_id)
     session.commit()
     return Response(status_code=204)
@@ -224,6 +240,12 @@ def list_filters(user_id: int, session: Session = Depends(get_session)):
 )
 def create_filter(user_id: int, data: FilterCreate, session: Session = Depends(get_session)):
     _get_user_or_404(session, user_id)
+    articles = pipeline.articles_of_user(session, user_id)
+    # закрываем транзакцию запроса на время тяжёлых вычислений (эмбеддинги статей),
+    # иначе база занята и другие запросы и сборщик ждут или падают с "database is locked"
+    session.commit()
+    warm_up_matchers([data.kind], articles)
+
     threshold = data.threshold if data.kind == "topic" else None
     flt = Filter(user_id=user_id, kind=data.kind, query=data.query, threshold=threshold)
     session.add(flt)
@@ -285,7 +307,12 @@ def list_own_posts(session: Session = Depends(get_session)):
 )
 def create_own_post(data: OwnPostCreate, session: Session = Depends(get_session)):
     """Опубликовать пост в наш RSS-канал. Он сразу попадает в ленты подписчиков."""
-    post = TestPost(title=data.title.strip(), body=data.body.strip())
+    title = data.title.strip()
+    body = data.body.strip()
+    # прогрев до первого обращения к базе: транзакция ещё не открыта
+    warm_up_matchers(FILTER_KINDS, [ArticleData(id=0, title=title, summary=body)])
+
+    post = TestPost(title=title, body=body)
     session.add(post)
     session.flush()
     channel = ensure_own_channel(session)

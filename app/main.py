@@ -9,6 +9,7 @@ from fastapi.responses import HTMLResponse
 from app import config
 from app.api import router, rss_router
 from app.db import init_db, session_scope
+from app.matching import preload_matchers
 from app.own_channel import ensure_own_channel
 from app.scheduler import FetchScheduler
 
@@ -24,6 +25,8 @@ def create_app(start_scheduler: Optional[bool] = None) -> FastAPI:
         init_db()
         with session_scope() as session:
             ensure_own_channel(session)
+        # модели грузим при старте, а не на первом запросе: если модели нет, это сразу видно в логе
+        preload_matchers()
         scheduler = FetchScheduler() if start_scheduler else None
         if scheduler:
             scheduler.start()
