@@ -27,9 +27,10 @@ from sqlalchemy.orm import Session
 
 from app import config
 from app.db import session_scope
-from app.models import Channel, TestPost, utcnow
+from app.matching import warm_up_matchers
+from app.models import Article, Channel, TestPost, utcnow
 from app.own_channel import items_from_posts
-from app.pipeline import FeedItem, ingest
+from app.pipeline import FeedItem, ingest, item_to_article_data, subscriber_filter_kinds
 
 log = logging.getLogger(__name__)
 
@@ -263,15 +264,22 @@ def fetch_channel(
 
 
 def fetch_channel_by_id(channel_id: int, client: Optional[httpx.Client] = None) -> int:
-    """Обновляет канал в три шага: короткое чтение -> сеть без БД -> короткая запись."""
+    """Обновляет канал: короткое чтение -> сеть и прогрев движков без БД -> короткая запись."""
     with session_scope() as session:
         channel = session.get(Channel, channel_id)
         if channel is None:
             return 0
         url, is_test = channel.url, channel.is_test
         etag, last_modified = channel.etag, channel.last_modified
+        known_guids = set(session.scalars(select(Article.guid).where(Article.channel_id == channel_id)))
+        filter_kinds = subscriber_filter_kinds(session, channel_id)
 
     download = None if is_test else download_feed(url, client, etag, last_modified)
+
+    if download is not None and download.items and filter_kinds:
+        # эмбеддинги новых статей считаем здесь, вне транзакции: внутри неё match() будет быстрым
+        new_items = [item for item in download.items if item.guid not in known_guids]
+        warm_up_matchers(filter_kinds, [item_to_article_data(item) for item in new_items])
 
     with session_scope() as session:
         channel = session.get(Channel, channel_id)
