@@ -1,7 +1,9 @@
 """HTTP API. Полная документация с кнопкой «Try it out» — на /docs."""
+import html
 from typing import List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response
+from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -23,6 +25,7 @@ from app.schemas import (
     OwnPostOut,
     UserCreate,
     UserOut,
+    _assume_utc,
 )
 
 router = APIRouter(prefix="/api")
@@ -319,6 +322,27 @@ def create_own_post(data: OwnPostCreate, session: Session = Depends(get_session)
     fetch_channel(session, channel)
     session.commit()
     return post
+
+
+@rss_router.get("/rss/test/{post_id}", response_class=HTMLResponse, tags=["own channel"])
+def own_post_page(post_id: int, session: Session = Depends(get_session)):
+    """Страница поста: на неё ведут ссылки из /rss/test.xml и из ленты."""
+    post = session.get(TestPost, post_id)
+    if post is None:
+        raise HTTPException(status_code=404, detail="пост не найден")
+    created = _assume_utc(post.created_at)
+    title = html.escape(post.title)
+    return HTMLResponse(
+        "<!doctype html><html lang='ru'><head><meta charset='utf-8'>"
+        "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+        f"<title>{title}</title><link rel='stylesheet' href='/static/style.css'></head>"
+        "<body><main><article class='article'>"
+        "<div class='meta'><span>Тестовый канал</span><span>·</span>"
+        f"<time datetime='{created.isoformat()}'>{created:%d.%m.%Y %H:%M} UTC</time></div>"
+        f"<h4>{title}</h4>"
+        f"<p class='summary' style='white-space:pre-wrap'>{html.escape(post.body)}</p>"
+        "</article><p class='small'><a href='/'>← к ленте</a></p></main></body></html>"
+    )
 
 
 @rss_router.get("/rss/test.xml", tags=["own channel"])

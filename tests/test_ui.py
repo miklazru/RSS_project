@@ -30,6 +30,25 @@ def test_interface_works_offline():
         assert not external.search(text), f"внешний ресурс в {path.name}"
 
 
+def test_own_post_link_opens_page(client):
+    """Ссылка поста нашего канала (в ленте и в /rss/test.xml) ведёт на страницу, а не на 404."""
+    user = client.post("/api/users", json={"name": "Аня"}).json()
+    client.post(f"/api/users/{user['id']}/filters", json={"kind": "keyword", "query": "санкции"})
+    post = client.post("/api/own-channel/posts", json={"title": "Новые санкции <b>", "body": "строка 1\nстрока 2"}).json()
+
+    link = client.get(f"/api/users/{user['id']}/feed").json()[0]["link"]
+    assert link.endswith(f"/rss/test/{post['id']}")
+    assert f"/rss/test/{post['id']}" in client.get("/rss/test.xml").text
+
+    page = client.get(f"/rss/test/{post['id']}")
+    assert page.status_code == 200
+    assert page.headers["content-type"].startswith("text/html")
+    assert "Новые санкции &lt;b&gt;" in page.text  # текст экранирован
+    assert "строка 1\nстрока 2" in page.text
+
+    assert client.get("/rss/test/99999").status_code == 404
+
+
 def test_interface_has_no_browser_dialogs():
     """prompt/confirm/alert молча блокируются во встроенных браузерах — кнопки «не работают»."""
     js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
