@@ -363,18 +363,52 @@ function renderFilters() {
     return;
   }
   list.replaceChildren(...state.filters.map((f) => {
+    const n = f.matches_count;
+    const passed = `прошло ${n} ${plural(n, "статья", "статьи", "статей")}`;
     const sub = f.kind === "topic"
-      ? (f.threshold === null ? "порог сходства по умолчанию" : `порог сходства ${f.threshold.toFixed(2)}`)
+      ? "поиск по смыслу"
       : "слова и фразы с учётом словоформ и опечаток";
     return h("div", { class: "item" },
       h("span", { class: "badge " + f.kind }, KIND_LABEL[f.kind]),
       h("div", { class: "main" },
         h("div", { class: "title" }, f.query),
-        h("div", { class: "sub" }, sub, " · добавлен ", timeEl(f.created_at))),
+        h("div", { class: "sub" }, sub, " · ", h("b", null, passed), " · добавлен ", timeEl(f.created_at)),
+        f.kind === "topic" ? thresholdControl(f) : null),
       h("div", { class: "actions" },
         h("button", { type: "button", class: "btn btn-ghost btn-small btn-danger-text",
           onclick: (ev) => deleteFilter(f, ev.currentTarget) }, "Удалить")));
   }));
+}
+
+/** Ползунок порога у созданной темы: двигаешь — видно значение, отпускаешь — пересчёт. */
+function thresholdControl(f) {
+  const value = h("output", { class: "mono" }, f.effective_threshold.toFixed(2));
+  const note = h("span", { class: "muted small" }, f.threshold === null ? "по умолчанию" : "свой");
+  const range = h("input", {
+    type: "range", min: "0", max: "1", step: "0.01", value: String(f.effective_threshold),
+    "aria-label": `Порог сходства для темы «${f.query}»`,
+    oninput: () => { value.textContent = Number(range.value).toFixed(2); note.textContent = "отпустите, чтобы применить"; },
+    onchange: () => updateThreshold(f, Number(range.value), range, note),
+  });
+  const reset = f.threshold === null ? null : h("button", {
+    type: "button", class: "btn btn-ghost btn-small", title: "вернуть порог по умолчанию",
+    onclick: () => updateThreshold(f, null, range, note),
+  }, "по умолчанию");
+  return h("div", { class: "tune" }, h("span", { class: "small" }, "порог"), range, value, note, reset);
+}
+
+async function updateThreshold(f, threshold, range, note) {
+  if (threshold !== null && threshold === f.threshold) return;
+  range.disabled = true;
+  note.textContent = "пересчитываю…";
+  try {
+    const updated = await api("PATCH", `/api/users/${state.userId}/filters/${f.id}`, { threshold });
+    const n = updated.matches_count;
+    toast(`Порог ${updated.effective_threshold.toFixed(2)} для «${f.query}»: ${n} ${plural(n, "статья", "статьи", "статей")} (было ${f.matches_count})`);
+  } catch (err) {
+    toast(err.message, true);
+  }
+  await Promise.all([loadFilters(), loadFeed()]);
 }
 
 async function deleteFilter(f, button) {
@@ -418,7 +452,7 @@ async function submitFilter(ev) {
     const flt = await api("POST", `/api/users/${state.userId}/filters`, body);
     form.query.value = "";
     await Promise.all([loadFilters(), loadFeed()]);
-    const n = state.feed.filter((e) => e.matches.some((m) => m.filter_id === flt.id)).length;
+    const n = flt.matches_count;
     toast(`Фильтр добавлен: ${n} ${plural(n, "статья", "статьи", "статей")} в ленте`);
     // пустой результат на демо выглядит как поломка — подсказываем, что делать
     if (n === 0 && kind === "topic") {

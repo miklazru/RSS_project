@@ -4,15 +4,15 @@ from typing import List
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, Response
 from fastapi.responses import HTMLResponse
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app import pipeline
+from app import config, pipeline
 from app.db import get_session
 from app.fetcher import fetch_channel, fetch_channel_by_id
 from app.matching import FILTER_KINDS, ArticleData, warm_up_matchers
-from app.models import Channel, Filter, Subscription, TestPost, User
+from app.models import Channel, Filter, Match, Subscription, TestPost, User
 from app.own_channel import build_rss_xml, ensure_own_channel
 from app.schemas import (
     ChannelCreate,
@@ -21,6 +21,7 @@ from app.schemas import (
     FeedMatchOut,
     FilterCreate,
     FilterOut,
+    FilterUpdate,
     OwnPostCreate,
     OwnPostOut,
     UserCreate,
@@ -230,12 +231,23 @@ def unsubscribe(user_id: int, channel_id: int, session: Session = Depends(get_se
 # ---------- фильтры пользователя ----------
 
 
+def _filter_out(session: Session, flt: Filter) -> FilterOut:
+    out = FilterOut.model_validate(flt)
+    if flt.kind == "topic":
+        out.effective_threshold = (
+            flt.threshold if flt.threshold is not None else config.DEFAULT_TOPIC_THRESHOLD
+        )
+    out.matches_count = session.scalar(
+        select(func.count()).select_from(Match).where(Match.filter_id == flt.id)
+    )
+    return out
+
+
 @router.get("/users/{user_id}/filters", response_model=List[FilterOut], tags=["filters"])
 def list_filters(user_id: int, session: Session = Depends(get_session)):
     _get_user_or_404(session, user_id)
-    return list(
-        session.scalars(select(Filter).where(Filter.user_id == user_id).order_by(Filter.id))
-    )
+    filters = session.scalars(select(Filter).where(Filter.user_id == user_id).order_by(Filter.id))
+    return [_filter_out(session, flt) for flt in filters]
 
 
 @router.post(
@@ -256,7 +268,34 @@ def create_filter(user_id: int, data: FilterCreate, session: Session = Depends(g
     # новый фильтр сразу применяется к уже скачанным статьям
     pipeline.match_filter(session, flt)
     session.commit()
-    return flt
+    return _filter_out(session, flt)
+
+
+@router.patch("/users/{user_id}/filters/{filter_id}", response_model=FilterOut, tags=["filters"])
+def update_filter(
+    user_id: int, filter_id: int, data: FilterUpdate, session: Session = Depends(get_session)
+):
+    """Изменить порог сходства темы. Совпадения фильтра сразу пересчитываются."""
+    flt = session.get(Filter, filter_id)
+    if flt is None or flt.user_id != user_id:
+        raise HTTPException(status_code=404, detail="фильтр не найден")
+    if flt.kind != "topic":
+        raise HTTPException(status_code=400, detail="порог сходства есть только у фильтров-тем")
+
+    articles = pipeline.articles_of_user(session, user_id)
+    # как при создании: модель считает вне транзакции, база в это время свободна
+    session.commit()
+    warm_up_matchers([flt.kind], articles)
+
+    flt = session.get(Filter, filter_id)
+    if flt is None:  # удалили, пока считали
+        raise HTTPException(status_code=404, detail="фильтр не найден")
+    flt.threshold = data.threshold
+    session.execute(delete(Match).where(Match.filter_id == flt.id))
+    session.flush()
+    pipeline.match_filter(session, flt)
+    session.commit()
+    return _filter_out(session, flt)
 
 
 @router.delete("/users/{user_id}/filters/{filter_id}", status_code=204, tags=["filters"])

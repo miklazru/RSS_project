@@ -168,6 +168,9 @@ select { padding-right: 28px; max-width: 220px; }
 .item .title { font-weight: 600; overflow-wrap: anywhere; }
 .item .sub { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
 .item .actions { display: flex; gap: 6px; flex-shrink: 0; }
+.tune { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.tune input[type="range"] { flex: 0 1 220px; accent-color: var(--topic); padding: 0; border: 0; background: none; }
+.tune output { font-weight: 600; color: var(--topic); min-width: 34px; }
 .empty { color: var(--muted); padding: 16px; text-align: center; border: 1px dashed var(--border); border-radius: var(--radius); }
 
 .badge {
