@@ -375,12 +375,12 @@ def own_post_page(post_id: int, session: Session = Depends(get_session)):
         "<!doctype html><html lang='ru'><head><meta charset='utf-8'>"
         "<meta name='viewport' content='width=device-width, initial-scale=1'>"
         f"<title>{title}</title><link rel='stylesheet' href='/static/style.css'></head>"
-        "<body><main><article class='article'>"
+        "<body><div class='sheet'><div class='paper'><main><article class='article'>"
         "<div class='meta'><span>Тестовый канал</span><span>·</span>"
         f"<time datetime='{created.isoformat()}'>{created:%d.%m.%Y %H:%M} UTC</time></div>"
         f"<h4>{title}</h4>"
         f"<p class='summary' style='white-space:pre-wrap'>{html.escape(post.body)}</p>"
-        "</article><p class='small'><a href='/'>← к ленте</a></p></main></body></html>"
+        "</article><p class='small'><a href='/'>← к ленте</a></p></main></div></div></body></html>"
     )
 
 

@@ -141,6 +141,8 @@ function renderUsers() {
     ...state.users.map((u) => h("option", { value: u.id, selected: u.id === state.userId }, u.name))
   );
   const has = state.userId !== null;
+  const current = state.users.find((u) => u.id === state.userId);
+  $("#user-script").textContent = current ? current.name.toLowerCase() : "добро пожаловать";
   select.disabled = !has;
   $("#user-delete").hidden = !has;
   $("#no-user").hidden = has;

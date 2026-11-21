@@ -25,9 +25,22 @@ def test_static_files_served(client):
 def test_interface_works_offline():
     """На демо-ноутбуке может не быть интернета: никаких CDN, шрифтов и прочих внешних ссылок."""
     external = re.compile(r"""(?:src|href)\s*=\s*["']https?://|@import\s+url\(\s*["']?https?://|fetch\(\s*["']https?://""")
-    for path in STATIC_DIR.iterdir():
+    for path in STATIC_DIR.rglob("*"):
+        if path.suffix not in {".html", ".js", ".css"}:
+            continue
         text = path.read_text(encoding="utf-8")
         assert not external.search(text), f"внешний ресурс в {path.name}"
+
+
+def test_fonts_are_bundled(client):
+    """Шрифты из style.css лежат рядом и отдаются сервером (иначе офлайн будет системный шрифт)."""
+    css = (STATIC_DIR / "style.css").read_text(encoding="utf-8")
+    fonts = re.findall(r"url\((fonts/[^)]+\.woff2)\)", css)
+    assert fonts
+    for font in fonts:
+        response = client.get(f"/static/{font}")
+        assert response.status_code == 200, font
+        assert response.content[:4] == b"wOF2", font
 
 
 def test_own_post_link_opens_page(client):
