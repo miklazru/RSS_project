@@ -165,8 +165,10 @@ b { font-weight: 600; }
   clip-path: polygon(0 0, 100% 0, 0 100%);
   box-shadow: -6px -6px 14px rgba(0, 0, 0, .15);
 }
-.binder {
-  position: absolute; z-index: 2; width: 96px; top: -22px; right: 52px; transform: rotate(10deg);
+/* скрепка зацеплена за верхний край листа: половина над бумагой, половина на ней */
+.corner-clip {
+  position: absolute; z-index: 2; width: 40px; height: 123px; top: -48px; right: 72px;
+  transform: rotate(8deg); filter: drop-shadow(1px 3px 2px rgba(0, 0, 0, .25));
 }
 
 /* ---------- шапка ---------- */
@@ -268,11 +270,6 @@ select option { font-style: normal; background: var(--paper); color: var(--ink);
 }
 .form { display: flex; flex-direction: column; gap: 14px; margin: 22px 0 8px; }
 .hint { margin: 0; }
-/* скрепка, как на фотографии в референсе */
-.paperclip {
-  position: absolute; z-index: 1; top: -42px; right: 48px; width: 30px; height: 92px;
-  transform: rotate(10deg); filter: drop-shadow(1px 3px 2px rgba(0, 0, 0, .22));
-}
 
 .seg { display: inline-flex; border: 1px solid var(--ink); align-self: flex-start; }
 .seg label { cursor: pointer; }
@@ -402,7 +399,7 @@ input[type="checkbox"] { border: 0; }
 @media (max-width: 760px) {
   .sheet { width: calc(100% - 20px); margin: 40px auto 32px; }
   .paper { --fold: 56px; padding: 40px 18px 72px; }
-  .binder { width: 64px; top: -14px; right: 22px; }
+  .corner-clip { width: 30px; height: 92px; top: -36px; right: 30px; }
   .masthead { grid-template-columns: 1fr; gap: 20px; }
   .persona .script { font-size: 60px; min-height: 66px; }
   /* на телефоне вкладки листаются пальцем, полосу прокрутки не показываем */
