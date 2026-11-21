@@ -570,22 +570,49 @@ function bind() {
   window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
 
   $("#user-select").addEventListener("change", (ev) => selectUser(Number(ev.target.value)));
-  $("#user-add").addEventListener("click", async () => {
-    const name = (prompt("Имя нового пользователя:") || "").trim();
+  // новый пользователь: форма прямо в шапке вместо prompt()
+  const newForm = $("#user-new-form");
+  const toggleNewForm = (open) => {
+    newForm.hidden = !open;
+    for (const id of ["#user-select", "#user-add", "#user-delete"]) $(id).hidden = open || (id === "#user-delete" && state.userId === null);
+    if (open) newForm.name.focus(); else newForm.reset();
+  };
+  $("#user-add").addEventListener("click", () => toggleNewForm(true));
+  $("#user-new-cancel").addEventListener("click", () => toggleNewForm(false));
+  newForm.addEventListener("keydown", (ev) => { if (ev.key === "Escape") toggleNewForm(false); });
+  newForm.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const name = newForm.name.value.trim();
     if (!name) return;
-    try { await createUser(name); } catch (err) { toast(err.message, true); }
+    await withBusy(newForm.querySelector("button"), "Создаю…", async () => {
+      await createUser(name);
+      toggleNewForm(false);
+    });
   });
-  $("#user-delete").addEventListener("click", async () => {
+
+  // удаление: вместо confirm() — повторное нажатие в течение нескольких секунд
+  const delBtn = $("#user-delete");
+  let delTimer = null;
+  const resetDel = () => { clearTimeout(delTimer); delTimer = null; delBtn.textContent = "Удалить"; delBtn.classList.remove("btn-confirm"); };
+  delBtn.addEventListener("click", async () => {
     const user = state.users.find((u) => u.id === state.userId);
-    if (!user || !confirm(`Удалить пользователя «${user.name}» вместе с его фильтрами и подписками?`)) return;
-    try {
+    if (!user) return;
+    if (delTimer === null) {
+      delBtn.textContent = `Точно удалить «${user.name}»?`;
+      delBtn.classList.add("btn-confirm");
+      delTimer = setTimeout(resetDel, 4000);
+      return;
+    }
+    resetDel();
+    await withBusy(delBtn, "Удаляю…", async () => {
       await api("DELETE", `/api/users/${user.id}`);
-      toast(`Пользователь «${user.name}» удалён`);
+      toast(`Пользователь «${user.name}» удалён вместе с фильтрами и подписками`);
       state.userId = null;
       await loadUsers();
       if (state.userId !== null) await selectUser(state.userId);
-    } catch (err) { toast(err.message, true); }
+    });
   });
+  $("#user-select").addEventListener("change", resetDel);
   $("#first-user-form").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const name = ev.currentTarget.name.value.trim();

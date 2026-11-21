@@ -30,6 +30,13 @@ def test_interface_works_offline():
         assert not external.search(text), f"внешний ресурс в {path.name}"
 
 
+def test_interface_has_no_browser_dialogs():
+    """prompt/confirm/alert молча блокируются во встроенных браузерах — кнопки «не работают»."""
+    js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    code = re.sub(r"//[^\n]*", "", js)
+    assert not re.search(r"\b(prompt|confirm|alert)\s*\(", code)
+
+
 def test_interface_uses_existing_api_routes(client):
     """Все пути API, к которым обращается интерфейс, есть в приложении."""
     js = (STATIC_DIR / "app.js").read_text(encoding="utf-8")

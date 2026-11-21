@@ -18,6 +18,12 @@
       <select id="user-select" aria-label="Текущий пользователь"></select>
       <button type="button" id="user-add" class="btn btn-ghost" title="Новый пользователь">+ Новый</button>
       <button type="button" id="user-delete" class="btn btn-ghost btn-danger-text" title="Удалить пользователя">Удалить</button>
+      <!-- без prompt()/confirm(): встроенные браузеры (например, в VS Code) их молча блокируют -->
+      <form id="user-new-form" class="row" hidden>
+        <input name="name" placeholder="Имя, например Вика" required maxlength="100" autocomplete="off" aria-label="Имя нового пользователя">
+        <button class="btn">Создать</button>
+        <button type="button" class="btn btn-ghost" id="user-new-cancel">Отмена</button>
+      </form>
     </div>
   </header>
 

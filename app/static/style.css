@@ -133,6 +133,9 @@ select { padding-right: 28px; max-width: 220px; }
 .btn-ghost:hover { background: var(--surface-2); filter: none; }
 .btn-small { padding: 4px 10px; font-size: 13px; }
 .btn-danger-text { color: var(--warn); }
+.btn-confirm { background: var(--warn); border-color: var(--warn); color: #fff; }
+.btn-confirm:hover { background: var(--warn); }
+.user-box form input { flex: 1 1 160px; width: 220px; }
 
 .card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
