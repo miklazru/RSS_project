@@ -3,8 +3,11 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Optional
 
+from pathlib import Path
+
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app import config
 from app.api import router, rss_router
@@ -12,6 +15,8 @@ from app.db import init_db, session_scope
 from app.matching import preload_matchers
 from app.own_channel import ensure_own_channel
 from app.scheduler import FetchScheduler
+
+STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
@@ -47,13 +52,13 @@ def create_app(start_scheduler: Optional[bool] = None) -> FastAPI:
     def health():
         return {"status": "ok"}
 
-    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    # интерфейс (роль 5): обычные HTML + JS без сборки, работают без Node и без интернета
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+    @app.get("/", include_in_schema=False)
     def index():
-        # временная страница, пока нет интерфейса (роль 5)
-        return (
-            "<h1>RSS News Filter</h1>"
-            "<p>Интерфейс в разработке. API и документация: <a href='/docs'>/docs</a></p>"
-        )
+        # no-cache: после обновления кода браузер не покажет старую версию страницы
+        return FileResponse(STATIC_DIR / "index.html", headers={"Cache-Control": "no-cache"})
 
     return app
 
