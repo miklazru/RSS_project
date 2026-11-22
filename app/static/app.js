@@ -159,7 +159,18 @@ async function selectUser(id) {
   state.feedChip = null;
   state.seen = null;
   state.fresh.clear();
+  state.feedError = null;
+  state.lastFeedAt = null;
+  // карточки прошлого пользователя убираем сразу, не дожидаясь ответа API:
+  // иначе их кнопки успеют сработать от имени нового пользователя
+  state.filters = [];
+  state.myChannels = [];
+  state.allChannels = [];
   renderUsers();
+  renderFilters();
+  renderChannels();
+  renderFeed();
+  renderFeedStatus();
   showTab(state.tab);
   await refreshAll();
 }
@@ -358,6 +369,7 @@ async function loadFilters() {
 }
 
 function renderFilters() {
+  const userId = state.userId;
   $("#filters-count").textContent = state.filters.length ? String(state.filters.length) : "";
   const list = $("#filter-list");
   if (!state.filters.length) {
@@ -375,36 +387,37 @@ function renderFilters() {
       h("div", { class: "main" },
         h("div", { class: "title" }, f.query),
         h("div", { class: "sub" }, sub, " · ", h("b", null, passed), " · добавлен ", timeEl(f.created_at)),
-        f.kind === "topic" ? thresholdControl(f) : null),
+        f.kind === "topic" ? thresholdControl(f, userId) : null),
       h("div", { class: "actions" },
         h("button", { type: "button", class: "btn btn-ghost btn-small btn-danger-text",
-          onclick: (ev) => deleteFilter(f, ev.currentTarget) }, "Удалить")));
+          onclick: (ev) => deleteFilter(f, ev.currentTarget, userId) }, "Удалить")));
   }));
 }
 
 /** Ползунок порога у созданной темы: двигаешь — видно значение, отпускаешь — пересчёт. */
-function thresholdControl(f) {
+function thresholdControl(f, userId) {
   const value = h("output", { class: "mono" }, f.effective_threshold.toFixed(2));
   const note = h("span", { class: "muted small" }, f.threshold === null ? "по умолчанию" : "свой");
   const range = h("input", {
     type: "range", min: "0", max: "1", step: "0.01", value: String(f.effective_threshold),
     "aria-label": `Порог сходства для темы «${f.query}»`,
     oninput: () => { value.textContent = Number(range.value).toFixed(2); note.textContent = "отпустите, чтобы применить"; },
-    onchange: () => updateThreshold(f, Number(range.value), range, note),
+    onchange: () => updateThreshold(f, Number(range.value), range, note, userId),
   });
   const reset = f.threshold === null ? null : h("button", {
     type: "button", class: "btn btn-ghost btn-small", title: "вернуть порог по умолчанию",
-    onclick: () => updateThreshold(f, null, range, note),
+    onclick: () => updateThreshold(f, null, range, note, userId),
   }, "по умолчанию");
   return h("div", { class: "tune" }, h("span", { class: "small" }, "порог"), range, value, note, reset);
 }
 
-async function updateThreshold(f, threshold, range, note) {
+async function updateThreshold(f, threshold, range, note, userId) {
+  if (userId !== state.userId) return; // карточка устарела: пользователя уже переключили
   if (threshold !== null && threshold === f.threshold) return;
   range.disabled = true;
   note.textContent = "пересчитываю…";
   try {
-    const updated = await api("PATCH", `/api/users/${state.userId}/filters/${f.id}`, { threshold });
+    const updated = await api("PATCH", `/api/users/${userId}/filters/${f.id}`, { threshold });
     const n = updated.matches_count;
     toast(`Порог ${updated.effective_threshold.toFixed(2)} для «${f.query}»: ${n} ${plural(n, "статья", "статьи", "статей")} (было ${f.matches_count})`);
   } catch (err) {
@@ -413,9 +426,10 @@ async function updateThreshold(f, threshold, range, note) {
   await Promise.all([loadFilters(), loadFeed()]);
 }
 
-async function deleteFilter(f, button) {
+async function deleteFilter(f, button, userId) {
+  if (userId !== state.userId) return; // карточка устарела: пользователя уже переключили
   await withBusy(button, "…", async () => {
-    await api("DELETE", `/api/users/${state.userId}/filters/${f.id}`);
+    await api("DELETE", `/api/users/${userId}/filters/${f.id}`);
     toast(`Фильтр «${f.query}» удалён`);
     await Promise.all([loadFilters(), loadFeed()]);
   });
@@ -502,20 +516,21 @@ function channelItem(c, actions) {
 }
 
 function renderChannels() {
+  const userId = state.userId;
   const mineIds = new Set(state.myChannels.map((c) => c.id));
   $("#channels-count").textContent = state.myChannels.length ? String(state.myChannels.length) : "";
 
   $("#my-channels").replaceChildren(...(state.myChannels.length
     ? state.myChannels.map((c) => channelItem(c, [
-        h("button", { type: "button", class: "btn btn-ghost btn-small", onclick: (ev) => refreshChannel(c, ev.currentTarget) }, "Обновить"),
-        h("button", { type: "button", class: "btn btn-ghost btn-small btn-danger-text", onclick: (ev) => unsubscribe(c, ev.currentTarget) }, "Отписаться"),
+        h("button", { type: "button", class: "btn btn-ghost btn-small", onclick: (ev) => refreshChannel(c, ev.currentTarget, userId) }, "Обновить"),
+        h("button", { type: "button", class: "btn btn-ghost btn-small btn-danger-text", onclick: (ev) => unsubscribe(c, ev.currentTarget, userId) }, "Отписаться"),
       ]))
     : [h("div", { class: "empty" }, "Нет подписок. Добавьте канал по ссылке выше.")]));
 
   const others = state.allChannels.filter((c) => !mineIds.has(c.id));
   $("#other-channels").replaceChildren(...(others.length
     ? others.map((c) => channelItem(c, [
-        h("button", { type: "button", class: "btn btn-small", onclick: (ev) => subscribe(c, ev.currentTarget) }, "Подписаться"),
+        h("button", { type: "button", class: "btn btn-small", onclick: (ev) => subscribe(c, ev.currentTarget, userId) }, "Подписаться"),
       ]))
     : [h("div", { class: "empty" }, "Других каналов нет.")]));
 }
@@ -532,23 +547,26 @@ async function submitChannel(ev) {
   });
 }
 
-async function subscribe(c, button) {
+async function subscribe(c, button, userId) {
+  if (userId !== state.userId) return; // карточка устарела: пользователя уже переключили
   await withBusy(button, "…", async () => {
-    await api("PUT", `/api/users/${state.userId}/channels/${c.id}`);
+    await api("PUT", `/api/users/${userId}/channels/${c.id}`);
     toast(`Подписка на «${c.title || c.url}» оформлена`);
     await Promise.all([loadChannels(), loadFeed()]);
   });
 }
 
-async function unsubscribe(c, button) {
+async function unsubscribe(c, button, userId) {
+  if (userId !== state.userId) return; // карточка устарела: пользователя уже переключили
   await withBusy(button, "…", async () => {
-    await api("DELETE", `/api/users/${state.userId}/channels/${c.id}`);
+    await api("DELETE", `/api/users/${userId}/channels/${c.id}`);
     toast(`Вы отписались от «${c.title || c.url}»`);
     await Promise.all([loadChannels(), loadFeed()]);
   });
 }
 
-async function refreshChannel(c, button) {
+async function refreshChannel(c, button, userId) {
+  if (userId !== state.userId) return; // карточка устарела: пользователя уже переключили
   await withBusy(button, "Скачиваю…", async () => {
     const updated = await api("POST", `/api/channels/${c.id}/refresh`);
     if (updated.last_error) toast("Канал не скачался: " + updated.last_error, true);
