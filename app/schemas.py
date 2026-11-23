@@ -82,7 +82,17 @@ class FilterOut(BaseModel):
     kind: str
     query: str
     threshold: Optional[float]
+    # порог, который реально действует: свой или порог по умолчанию (только у тем)
+    effective_threshold: Optional[float] = None
+    # сколько статей сейчас прошло этот фильтр
+    matches_count: int = 0
     created_at: UtcDatetime
+
+
+class FilterUpdate(BaseModel):
+    """Новый порог сходства для темы; null — вернуть порог по умолчанию."""
+
+    threshold: Optional[float] = Field(ge=0.0, le=1.0)
 
 
 class FeedMatchOut(BaseModel):

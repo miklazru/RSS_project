@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RSS News Filter</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%231d1b19'/%3E%3Ccircle cx='4.5' cy='11.5' r='1.6' fill='white'/%3E%3Cpath d='M3 7a6 6 0 0 1 6 6M3 3.5A9.5 9.5 0 0 1 12.5 13' stroke='white' stroke-width='1.8' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+ <div class="sheet">
+  <!-- канцелярская скрепка на краю листа -->
+  <svg class="corner-clip" viewBox="0 0 30 92" aria-hidden="true">
+    <defs><linearGradient id="clip-metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a8884"/><stop offset=".42" stop-color="#f1f0ee"/><stop offset=".58" stop-color="#b9b6b1"/><stop offset="1" stop-color="#6f6c67"/></linearGradient></defs>
+    <path d="M11 30 V72 a4.5 4.5 0 0 0 9 0 V15 a8 8 0 0 0 -16 0 V76 a11 11 0 0 0 22 0 V24" fill="none" stroke="url(#clip-metal)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 30 V72 a4.5 4.5 0 0 0 9 0 V15 a8 8 0 0 0 -16 0 V76 a11 11 0 0 0 22 0 V24" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width=".6" stroke-linecap="round" transform="translate(-.45 -.35)"/>
+  </svg>
+  <div class="paper">
+
+  <header class="masthead">
+    <div class="mast-title">
+      <h1 class="display">news <em>filter</em></h1>
+      <p class="caps tagline">агрегатор RSS · ключевые слова · темы</p>
+    </div>
+    <div class="persona">
+      <div class="script" id="user-script" aria-hidden="true"></div>
+      <hr class="rule">
+      <div class="caps persona-caps">личная лента новостей</div>
+      <div class="ornament" aria-hidden="true"><span>✦</span></div>
+    <div class="user-box">
+      <label for="user-select" class="caps small-caps">Читатель</label>
+      <select id="user-select" aria-label="Текущий пользователь"></select>
+      <button type="button" id="user-add" class="btn btn-ghost" title="Новый пользователь">+ Новый</button>
+      <button type="button" id="user-delete" class="btn btn-ghost btn-danger-text" title="Удалить пользователя">Удалить</button>
+      <!-- без prompt()/confirm(): встроенные браузеры (например, в VS Code) их молча блокируют -->
+      <form id="user-new-form" class="row" hidden>
+        <input name="name" placeholder="Имя, например Вика" required maxlength="100" autocomplete="off" aria-label="Имя нового пользователя">
+        <button class="btn">Создать</button>
+        <button type="button" class="btn btn-ghost" id="user-new-cancel">Отмена</button>
+      </form>
+    </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="feed" class="tab">Лента <span class="count" id="feed-count"></span></button>
+    <button type="button" role="tab" data-tab="filters" class="tab">Фильтры <span class="count" id="filters-count"></span></button>
+    <button type="button" role="tab" data-tab="channels" class="tab">Каналы <span class="count" id="channels-count"></span></button>
+    <button type="button" role="tab" data-tab="own" class="tab">Наш канал</button>
+  </nav>
+
+  <main>
+    <!-- пустое состояние: нет ни одного пользователя -->
+    <section id="no-user" class="panel empty-state" hidden>
+      <h2>пока никого</h2>
+      <p class="muted">Создайте пользователя — он сразу будет подписан на наш тестовый канал.</p>
+      <form id="first-user-form" class="row">
+        <input name="name" placeholder="Имя, например Аня" required maxlength="100" autocomplete="off">
+        <button class="btn">Создать</button>
+      </form>
+    </section>
+
+    <!-- ЛЕНТА -->
+    <section id="tab-feed" class="panel" role="tabpanel" hidden>
+      <div class="panel-head">
+        <div>
+          <h2>моя лента</h2>
+          <p class="muted small" id="feed-status">Загрузка…</p>
+        </div>
+        <div class="row">
+          <label class="switch small"><input type="checkbox" id="feed-autorefresh" checked> автообновление</label>
+          <button type="button" class="btn btn-ghost" id="feed-reload">Обновить</button>
+        </div>
+      </div>
+      <div class="chips" id="feed-chips"></div>
+      <div id="feed-list" class="feed"></div>
+      <div class="center"><button type="button" class="btn btn-ghost" id="feed-more" hidden>Показать ещё</button></div>
+    </section>
+
+    <!-- ФИЛЬТРЫ -->
+    <section id="tab-filters" class="panel" role="tabpanel" hidden>
+      <h2>мои фильтры</h2>
+      <p class="muted small">Статья попадает в ленту, если сработал <b>хотя бы один</b> фильтр. Новый фильтр сразу применяется к уже скачанным статьям.</p>
+
+      <form id="filter-form" class="card form">
+        <div class="seg" role="radiogroup" aria-label="Тип фильтра">
+          <label><input type="radio" name="kind" value="keyword" checked><span>Ключевые слова</span></label>
+          <label><input type="radio" name="kind" value="topic"><span>Тема</span></label>
+        </div>
+        <p class="hint small muted" id="kind-hint"></p>
+        <div class="row">
+          <input name="query" id="filter-query" required maxlength="1000" autocomplete="off" class="grow">
+          <button class="btn" id="filter-submit">Добавить</button>
+        </div>
+        <div id="threshold-box" class="threshold" hidden>
+          <label class="switch small"><input type="checkbox" id="threshold-custom"> свой порог сходства</label>
+          <input type="range" id="threshold-range" min="0" max="1" step="0.01" value="0.5" disabled>
+          <output id="threshold-value" class="mono">по умолчанию</output>
+        </div>
+      </form>
+
+      <div id="filter-list" class="list"></div>
+    </section>
+
+    <!-- КАНАЛЫ -->
+    <section id="tab-channels" class="panel" role="tabpanel" hidden>
+      <h2>мои каналы</h2>
+      <p class="muted small">Каналы общие для всех, подписки — у каждого свои. Лента строится только из ваших каналов.</p>
+
+      <form id="channel-form" class="card form">
+        <div class="row">
+          <input name="url" type="url" required placeholder="https://lenta.ru/rss" maxlength="1000" autocomplete="off" class="grow">
+          <button class="btn">Добавить и подписаться</button>
+        </div>
+      </form>
+
+      <h3>Мои подписки</h3>
+      <div id="my-channels" class="list"></div>
+
+      <h3>Другие каналы</h3>
+      <div id="other-channels" class="list"></div>
+    </section>
+
+    <!-- НАШ КАНАЛ -->
+    <section id="tab-own" class="panel" role="tabpanel" hidden>
+      <div class="panel-head">
+        <div>
+          <h2>наш канал</h2>
+          <p class="muted small">Пост сразу попадает в ленты всех подписчиков, у которых он проходит фильтры. Для внешних читалок: <a href="/rss/test.xml" target="_blank" rel="noopener" class="mono">/rss/test.xml</a></p>
+        </div>
+      </div>
+
+      <form id="post-form" class="card form">
+        <input name="title" required maxlength="500" placeholder="Заголовок" autocomplete="off">
+        <textarea name="body" rows="4" maxlength="20000" placeholder="Текст поста (необязательно)"></textarea>
+        <div class="row end">
+          <button class="btn" id="post-submit">Опубликовать</button>
+        </div>
+      </form>
+
+      <h3>Опубликованные посты</h3>
+      <div id="post-list" class="list"></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="script signoff">читаем только<br>важное</div>
+    <svg class="heart" viewBox="0 0 40 34" aria-hidden="true"><path d="M20 31 C8 22 2 16 3 9.5 C4 4 9 1.5 13.5 3 C16.5 4 18.5 6.5 20 9 C21.5 6.5 23.5 4 26.5 3 C31 1.5 36 4 37 9.5 C38 16 32 22 20 31 Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <div class="foot-brand">
+      <div class="caps">news filter</div>
+      <div class="ornament" aria-hidden="true"><span>✦</span></div>
+      <div class="caps small-caps">агрегатор rss · <a href="/docs">api и документация</a></div>
+    </div>
+  </footer>
+  </div>
+ </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
